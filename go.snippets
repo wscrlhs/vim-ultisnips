@@ -121,10 +121,117 @@ endsnippet
 
 
 
-#  this is a private infra
+# this is a private infra project
+# model_attr.go 文件
+snippet model_attr "model attributes" b
+package model
 
-snippet attr "model attributes" b
-if err != nil {
-	log.${1:Fatal}(err)
+import "database/sql/driver"
+
+// ModelAttr attr
+type ModelAttr struct {
+	// 附加字段，保存未识别的字段
+	Extra map[string]string `attr:"extra:true"`
+}
+
+// Scan 扫描
+func (attr *ModelAttr) Scan(value interface{}) error {
+	return ScanAttr(attr, string(value.([]byte)))
+}
+
+// Value 序列化
+func (attr ModelAttr) Value() (driver.Value, error) {
+	attrStr, e := ValueAttr(attr)
+	return []byte(attrStr), e
 }
 endsnippet
+
+# model_test.go 文件
+snippet model_test "model test" b
+package model_test
+
+import (
+	"shopsvr-infra/model"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+// 测试读取数据，以保证数据库数据都能被正常解析
+func TestModel(t *testing.T) {
+	// 允许并行测试
+	t.Parallel()
+	var count uint64
+	err := mainDB.Model(model.Model{}).Count(&count).Error
+	assert.NoError(t, err)
+	t.Log(count)
+	pageSize := int64(5)
+	for offset := int64(0); offset < int64(count); offset += pageSize {
+		var datas []model.Model
+		err = mainDB.Limit(pageSize).Offset(offset).Find(&datas).Error
+		assert.NoErrorf(t, err, "当前offset: %d", offset)
+	}
+}
+endsnippet
+
+# model.attributes重写
+snippet attributes "model attributes" b
+Attributes       ModelAttributes `gorm:"column:attributes;type:json" json:"attributes"`
+endsnippet
+
+# repository.go
+snippet repository "repository" b
+package repository
+
+import (
+	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
+)
+
+// RsRepository 任务大类型
+type RsRepository interface {
+	CommonRepository // 基础repository中提供的接口
+}
+
+type operationPushActionRepository struct {
+	*commonRepository
+}
+
+// MustNewRsRepository 新建任务类型数据源
+func MustNewRsRepository(db *gorm.DB) RsRepository {
+	repo, err := NewRsRepository(db)
+	if err != nil {
+		panic(errors.WithStack(err))
+	}
+	return repo
+}
+
+// NewRsRepository 新建任务类型数据源
+func NewRsRepository(db *gorm.DB) (repo RsRepository, err error) {
+	repo = &RsRepository{
+		commonRepository: mustNewCommonRepository(db),
+	}
+	return
+}
+endsnippet
+
+# repository_test.go
+snippet repository_test "model attributes" b
+package repository_test
+
+import (
+	"shopsvr-infra/infra/testtool"
+	"shopsvr-infra/persist/repository"
+	"testing"
+)
+
+func TestRsRecord(t *testing.T) {
+	// 允许并行测试
+	t.Parallel()
+	// 进行标准测试
+	testRepository(t, repository.MustNewRsRepository, testtool.CreateTestRs)
+}
+endsnippet
+
+#snippet attr "model attributes" b
+#endsnippet
