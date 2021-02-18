@@ -251,13 +251,11 @@ import (
 )
 
 // CtrController PI控制器
-// @Author Kuiki
 type CtrController struct {
 	*BaseController
 }
 
 // NewCtrController 新建控制器
-// @Author Kuiki
 func (base *BaseController) NewCtrController() *CtrController {
 	return &CtrController{
 		BaseController: base,
