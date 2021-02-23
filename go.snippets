@@ -128,19 +128,19 @@ package model
 
 import "database/sql/driver"
 
-// ModelAttr attr
-type ModelAttr struct {
+// ModelAttributes attr
+type ModelAttributes struct {
 	// 附加字段，保存未识别的字段
 	Extra map[string]string `attr:"extra:true"`
 }
 
 // Scan 扫描
-func (attr *ModelAttr) Scan(value interface{}) error {
+func (attr *ModelAttributes) Scan(value interface{}) error {
 	return ScanAttr(attr, string(value.([]byte)))
 }
 
 // Value 序列化
-func (attr ModelAttr) Value() (driver.Value, error) {
+func (attr ModelAttributes) Value() (driver.Value, error) {
 	attrStr, e := ValueAttr(attr)
 	return []byte(attrStr), e
 }
@@ -176,7 +176,7 @@ endsnippet
 
 # model.attributes重写
 snippet attributes "model attributes" b
-Attributes       ModelAttributes `gorm:"column:attributes;type:json" json:"attributes"`
+Attributes   ModelAttributes  \`gorm:"column:attributes;type:json" json:"attributes"\`
 endsnippet
 
 # repository.go
@@ -193,7 +193,7 @@ type RsRepository interface {
 	CommonRepository // 基础repository中提供的接口
 }
 
-type operationPushActionRepository struct {
+type RsRepository struct {
 	*commonRepository
 }
 
