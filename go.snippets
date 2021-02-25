@@ -131,7 +131,7 @@ import "database/sql/driver"
 // ModelAttributes attr
 type ModelAttributes struct {
 	// 附加字段，保存未识别的字段
-	Extra map[string]string `attr:"extra:true"`
+	Extra map[string]string \`attr:"extra:true"\`
 }
 
 // Scan 扫描
@@ -265,8 +265,8 @@ func (base *BaseController) NewCtrController() *CtrController {
 // Get 获取首页数据
 func (ctl *CtrController) Get(ctx iris.Context) mvc.Response {
     req := struct {
-		SourceType  addressservice.UpdateCitySourceType `json:"source_type"`
-		SourceValue string                              `json:"source_value"`
+		SourceType  addressservice.UpdateCitySourceType \`json:"source_type"\`
+		SourceValue string                              \`json:"source_value"\`
 	}{}
 	//url参数解析
 	err := ctl.ReadJSONValid(ctx, &req)
