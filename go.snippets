@@ -128,19 +128,19 @@ package model
 
 import "database/sql/driver"
 
-// ModelAttr attr
-type ModelAttr struct {
+// ModelAttributes attr
+type ModelAttributes struct {
 	// 附加字段，保存未识别的字段
-	Extra map[string]string `attr:"extra:true"`
+	Extra map[string]string \`attr:"extra:true"\`
 }
 
 // Scan 扫描
-func (attr *ModelAttr) Scan(value interface{}) error {
+func (attr *ModelAttributes) Scan(value interface{}) error {
 	return ScanAttr(attr, string(value.([]byte)))
 }
 
 // Value 序列化
-func (attr ModelAttr) Value() (driver.Value, error) {
+func (attr ModelAttributes) Value() (driver.Value, error) {
 	attrStr, e := ValueAttr(attr)
 	return []byte(attrStr), e
 }
@@ -259,10 +259,10 @@ func (base *BaseController) NewCtrController() *CtrController {
 	}
 }
 
-// Get 获取首页数据
+// Get 
 func (ctl *CtrController) Get(ctx iris.Context) mvc.Response {
     req := struct {
-		SourceValue string                              `json:"source_value"`
+		SourceValue string                              \`json:"source_value"\`
 	}{}
 	//url参数解析
 	err := ctl.ReadJSONValid(ctx, &req)
