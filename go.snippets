@@ -174,10 +174,6 @@ func TestModel(t *testing.T) {
 }
 endsnippet
 
-# model.attributes重写
-snippet attributes "model attributes" b
-Attributes       ModelAttributes `gorm:"column:attributes;type:json" json:"attributes"`
-endsnippet
 
 # repository.go
 snippet repository "repository" b
@@ -188,16 +184,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-// RsRepository 任务大类型
+// RsRepository 数据源 
 type RsRepository interface {
 	CommonRepository // 基础repository中提供的接口
 }
 
-type operationPushActionRepository struct {
+// rsRepository 数据源
+type rsRepository struct {
 	*commonRepository
 }
 
-// MustNewRsRepository 新建任务类型数据源
+// MustNewRsRepository 新建数据源
 func MustNewRsRepository(db *gorm.DB) RsRepository {
 	repo, err := NewRsRepository(db)
 	if err != nil {
@@ -206,9 +203,9 @@ func MustNewRsRepository(db *gorm.DB) RsRepository {
 	return repo
 }
 
-// NewRsRepository 新建任务类型数据源
+// NewRsRepository 新建数据源
 func NewRsRepository(db *gorm.DB) (repo RsRepository, err error) {
-	repo = &RsRepository{
+	repo = &rsRepository{
 		commonRepository: mustNewCommonRepository(db),
 	}
 	return
@@ -250,7 +247,7 @@ import (
 	"github.com/kataras/iris/v12/mvc"
 )
 
-// CtrController PI控制器
+// CtrController 控制器
 type CtrController struct {
 	*BaseController
 }
@@ -265,31 +262,24 @@ func (base *BaseController) NewCtrController() *CtrController {
 // Get 获取首页数据
 func (ctl *CtrController) Get(ctx iris.Context) mvc.Response {
     req := struct {
-		SourceType  addressservice.UpdateCitySourceType `json:"source_type"`
 		SourceValue string                              `json:"source_value"`
 	}{}
 	//url参数解析
 	err := ctl.ReadJSONValid(ctx, &req)
 	if err != nil {
-		ctl.logErrToConsole(ctx, err.Error())
 		return httpx.Error(ecode.ErrComBadParam)
 	}
 	ictx := ctl.context(ctx)
-	cityInfo, err := ctl.services.GetAddressService().UpdateUserCityBySource(ictx, req.SourceType, req.SourceValue)
+	err := ctl.services.GetAddressService().UpdateUserCityBySource(ictx, req.SourceType, req.SourceValue)
 	if err != nil {
-		ctl.logErrToConsole(ctx, err.Error())
 		return httpx.Error(err)
 	}
-	return httpx.Output(iris.Map{
-		"city_id":   cityInfo.ID,
-		"city_name": cityInfo.Name,
-	})
+	return httpx.Output("ok")
 
 }
 
 // BeforeActivation 兼容某些无法以方法名映射的路由
 func (ctl *CtrController) BeforeActivation(b mvc.BeforeActivation) {
-	b.Handle("GET", "/list", "GetKeyList")
 }
 endsnippet
 
@@ -307,24 +297,18 @@ import (
 	"github.com/pkg/errors"
 )
 
-// SevService Sev
+// SevService 服务
 type SevService interface {
 }
 
-// sev
+// sevService  服务
 type sevService struct {
-	adSpace       repository.SevRepository
-	abTestService abtestservice.ABTestService
 }
 
-// NewSevService 创建Sev服务
+// NewSevService 创建服务
 func NewSevService(
-	adSpace repository.SevRepository,
-	abTestService abtestservice.ABTestService,
 ) (adSpaceServ SevService, err error) {
 	return &sevService{
-		adSpace:       adSpace,
-		abTestService: abTestService,
 	}, nil
 }
 endsnippet
