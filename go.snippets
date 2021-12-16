@@ -153,23 +153,32 @@ package model_test
 import (
 	"shopsvr-infra/model"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-// 测试读取数据，以保证数据库数据都能被正常解析
-func TestModel(t *testing.T) {
+func TestStClue(t *testing.T) {
 	// 允许并行测试
 	t.Parallel()
-	var count uint64
-	err := mainDB.Model(model.Model{}).Count(&count).Error
-	assert.NoError(t, err)
-	t.Log(count)
-	pageSize := int64(5)
-	for offset := int64(0); offset < int64(count); offset += pageSize {
-		var datas []model.Model
-		err = mainDB.Limit(pageSize).Offset(offset).Find(&datas).Error
-		assert.NoErrorf(t, err, "当前offset: %d", offset)
+	var offsetID int64
+	pageSize := int64(100)
+	var processedCount int64
+	for {
+		var ms []model.StClue
+		err := mainDB.Where("id > ?", offsetID).Order("id asc").Limit(pageSize).Find(&ms).Error
+		if err != nil {
+			t.Logf("%d", offsetID)
+			t.Fatalf("test offsetID %d limit %d error: %+v", offsetID, pageSize, err)
+		}
+		if len(ms) == 0 {
+			t.Logf("processed %d records", processedCount)
+			break
+		}
+		for _, m := range ms {
+			if m.ID > offsetID {
+				offsetID = m.ID
+			}
+			processedCount++
+
+		}
 	}
 }
 endsnippet
