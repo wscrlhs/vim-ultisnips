@@ -193,28 +193,28 @@ import (
 	"github.com/pkg/errors"
 )
 
-// RsRepository 数据源 
-type RsRepository interface {
+// ModelRepository 数据源 
+type ModelRepository interface {
 	CommonRepository // 基础repository中提供的接口
 }
 
-// rsRepository 数据源
-type rsRepository struct {
+// ModelRepository 数据源
+type ModelRepository struct {
 	*commonRepository
 }
 
-// MustNewRsRepository 新建数据源
-func MustNewRsRepository(db *gorm.DB) RsRepository {
-	repo, err := NewRsRepository(db)
+// MustNewModelRepository 新建数据源
+func MustNewModelRepository(db *gorm.DB) ModelRepository {
+	repo, err := NewModelRepository(db)
 	if err != nil {
 		panic(errors.WithStack(err))
 	}
 	return repo
 }
 
-// NewRsRepository 新建数据源
-func NewRsRepository(db *gorm.DB) (repo RsRepository, err error) {
-	repo = &rsRepository{
+// NewModelRepository 新建数据源
+func NewModelRepository(db *gorm.DB) (repo ModelRepository, err error) {
+	repo = &ModelRepository{
 		commonRepository: mustNewCommonRepository(db),
 	}
 	return
@@ -231,11 +231,11 @@ import (
 	"testing"
 )
 
-func TestRsRecord(t *testing.T) {
+func TestModelRecord(t *testing.T) {
 	// 允许并行测试
 	t.Parallel()
 	// 进行标准测试
-	testRepository(t, repository.MustNewRsRepository, testtool.CreateTestRs)
+	testRepository(t, repository.MustNewRsRepository, testtool.CreateTestModel)
 }
 endsnippet
 
