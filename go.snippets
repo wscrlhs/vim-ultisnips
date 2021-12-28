@@ -155,14 +155,14 @@ import (
 	"testing"
 )
 
-func TestStClue(t *testing.T) {
+func TestModel(t *testing.T) {
 	// 允许并行测试
 	t.Parallel()
 	var offsetID int64
 	pageSize := int64(100)
 	var processedCount int64
 	for {
-		var ms []model.StClue
+		var ms []model.Model
 		err := mainDB.Where("id > ?", offsetID).Order("id asc").Limit(pageSize).Find(&ms).Error
 		if err != nil {
 			t.Logf("%d", offsetID)
