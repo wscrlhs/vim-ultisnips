@@ -235,7 +235,7 @@ func TestModelRecord(t *testing.T) {
 	// 允许并行测试
 	t.Parallel()
 	// 进行标准测试
-	testRepository(t, repository.MustNewRsRepository, testtool.CreateTestModel)
+	testRepository(t, repository.MustNewModelRepository, testtool.CreateTestModel)
 }
 endsnippet
 
